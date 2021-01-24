@@ -38,7 +38,8 @@ const DataTable = {
                     class="remove" 
                     src="./assets/minus.svg" 
                     alt="Remover Transação"
-                    onclick="FormTransaction.delete('${id}')" 
+                    onclick="FormTransaction.delete(this)"
+                    data-id="${id}" 
                 />
             </td>
         </tr>`;
@@ -147,8 +148,8 @@ const FormTransaction = {
         Balance.update(Transaction.getAllAmount())
         Modal.close()
     },
-    delete(id) {
-        Transaction.delete(id)
+    delete(element) {
+        Transaction.delete(element.dataset['id'])
         updateDates()
     }
 }
