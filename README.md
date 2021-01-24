@@ -1,4 +1,7 @@
-# maratonaDiscoverDevFinance
-dev.finance$ 
+<h1 align="center">
+  <img src="assets/logo.svg" alt="dev.finance$"/>
+</h1>
 
-Developed application in the maratona discover.
+<img src="screenshots/light.PNG" alt="light screenshot" />
+
+Application developed in Marathon Discover provided by [Rocketseat](https://rocketseat.com.br/).
