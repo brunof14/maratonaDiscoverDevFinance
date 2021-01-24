@@ -23,7 +23,8 @@
   --dark-mode: #f0f2f5;
 }
 
-[data-theme="dark"] input {
+[data-theme="dark"] input,
+[data-theme="dark"] .input-group small {
   color: white;
 }
 
