@@ -20,7 +20,6 @@ const ApresentationFormat = {
     }
 
 }
-
 const DataTable = {
     refTable: document.querySelector('#data-table tbody'),
     insertTransaction({ id, description, amount, date }) {
@@ -38,7 +37,7 @@ const DataTable = {
                     class="remove" 
                     src="./assets/minus.svg" 
                     alt="Remover Transação"
-                    onclick="FormTransaction.delete(this)"
+                    onclick="deleteTransaction(this)"
                     data-id="${id}" 
                 />
             </td>
@@ -122,36 +121,36 @@ const Transaction = {
     }
 }
 
-const FormTransaction = {
-    refForm: document.querySelector('form'),
-    refDescription: document.querySelector('#description'),
-    refAmount: document.querySelector('#amount'),
-    refDate: document.querySelector('#date'),
+const submitTransaction = (event) => {
+    event.preventDefault()
 
-    clear() {
-        this.refDescription.value = ''
-        this.refAmount.value = ''
-        this.refDate.value = ''
-    },
+    const form = event.target
+    const isInvalidFormData = form.checkValidity() === false
 
-    save() {
-        if (!this.refForm.checkValidity())
-            return
+    if (isInvalidFormData)
+        return
 
-        const description = this.refDescription.value
-        const amount = Number(this.refAmount.value)
-        const date = this.refDate.value
-
-        const transaction = Transaction.save(description, amount, date)
-
-        DataTable.insertTransaction(transaction)
-        Balance.update(Transaction.getAllAmount())
-        Modal.close()
-    },
-    delete(element) {
-        Transaction.delete(element.dataset['id'])
-        updateDates()
+    function clearForm() {
+        form.description.value = ''
+        form.amount.value = ''
+        form.date.value = ''
     }
+
+    const description = form.description.value
+    const amount = Number(form.amount.value)
+    const date = form.date.value
+
+    const transaction = Transaction.save(description, amount, date)
+
+    DataTable.insertTransaction(transaction)
+    Balance.update(Transaction.getAllAmount())
+    Modal.close()
+    clearForm()
+}
+
+const deleteTransaction = target => {
+    Transaction.delete(target.dataset['id'])
+    updateDates()
 }
 
 const Loading = {
@@ -206,13 +205,10 @@ const updateDates = () => {
 }
 
 const initSteps = () => {
+    document.querySelector('form').addEventListener('submit', submitTransaction)
+
     ThemeMode.load()
     updateDates()
-    FormTransaction.refForm.onsubmit = (e) => {
-        e.preventDefault()
-        FormTransaction.clear()
-    }
     Loading.hidden()
 }
 window.onload = initSteps
-
