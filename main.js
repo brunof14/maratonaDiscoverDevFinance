@@ -183,27 +183,19 @@ const ThemeMode = {
     },
     load() {
         this.refToggleTheme.addEventListener('click', () => ThemeMode.toggle())
-
-        if (this.currentTheme === 'dark') {
-            this.refToggleTheme.classList.remove('light')
-            this.refToggleTheme.classList.add('dark')
-            this._toggleTheme()
-        }
+        this._switchTheme()
     },
     toggle() {
-        const modes = {
+        const newTheme = {
             'light': 'dark',
             'dark': 'light'
-        }
+        }[this.currentTheme]
 
-        this.refToggleTheme.classList.remove(this.currentTheme)
-        this.currentTheme = modes[this.currentTheme]
-        this.refToggleTheme.classList.add(this.currentTheme)
-        
-        this._toggleTheme()
+        this.currentTheme = newTheme
+        this._switchTheme()
     },
 
-    _toggleTheme() {
+    _switchTheme() {
         document.documentElement.setAttribute("data-theme", this.currentTheme);
     }
 }

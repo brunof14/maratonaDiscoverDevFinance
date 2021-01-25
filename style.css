@@ -131,11 +131,11 @@ header {
   margin: 2rem auto;
 }
 
-.toggle-theme.dark #dark-mode {
+[data-theme="dark"] .toggle-theme #dark-mode {
   display: none;
 }
 
-.toggle-theme.light #light-mode {
+[data-theme="light"] .toggle-theme #light-mode {
   display: none;
 }
 
