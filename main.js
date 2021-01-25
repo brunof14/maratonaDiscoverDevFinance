@@ -16,7 +16,7 @@ const ApresentationFormat = {
         return number.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
     },
     date(dateString) {
-        return new Date(dateString).toLocaleDateString('pt-br')
+        return new Date(dateString).toLocaleDateString('pt-br', { timeZone: 'UTC' })
     }
 
 }
