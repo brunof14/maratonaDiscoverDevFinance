@@ -185,7 +185,7 @@ h2 {
   margin-top: 1rem;
 }
 
-.card.saldo {
+.card.total {
   background-color: var(--green);
   color: var(--white);
 }

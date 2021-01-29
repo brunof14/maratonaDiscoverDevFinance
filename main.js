@@ -1,214 +1,236 @@
 const Modal = {
-    refModal: document.querySelector('.modal-overlay'),
-    open() {
-        this.refModal.classList.add('active')
-    },
-    close() {
-        this.refModal.classList.remove('active')
+    modalOverlay: document.querySelector('.modal-overlay'),
+    toggle() {
+        Modal.modalOverlay.classList.toggle('active')
     }
 }
 
-const ApresentationFormat = {
-    money(number = 0) {
-        if (typeof number !== 'number')
-            return 0
+const Loading = {
+    container: document.querySelector('.loading-container'),
 
-        return number.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
-    },
-    date(dateString) {
-        return new Date(dateString).toLocaleDateString('pt-br', { timeZone: 'UTC' })
+    hidden() {
+        Loading.container.classList.add('fade-out')
+        Loading.container.addEventListener('animationend', () => {
+            Loading.container.classList.add('hidden')
+        })
     }
-
 }
-const DataTable = {
-    refTable: document.querySelector('#data-table tbody'),
-    insertTransaction({ id, description, amount, date }) {
-        const classOfAmount = amount > 0 ? 'income' : 'expense'
 
-        const amountFormated = ApresentationFormat.money(amount)
-        const dateFormated = ApresentationFormat.date(date)
+const StorageTheme = {
+    get() {
+        return localStorage.getItem('theme') || 'light'
+    },
+    set(theme) {
+        localStorage.setItem('theme', theme)
+    }
+}
 
-        const template = `<tr>
-            <td class="description">${description}</td>
-            <td class="${classOfAmount}">${amountFormated}</td>
-            <td class="data">${dateFormated}</td>
+const Theme = {
+    current: StorageTheme.get(),
+    load() {
+        document.documentElement.dataset.theme = Theme.current
+    },
+
+    toggle() {
+        const newTheme = Theme.current === 'light' ? 'dark' : 'light'
+
+        Theme.current = newTheme
+        StorageTheme.set(newTheme)
+
+        Theme.load()
+    }
+}
+
+const Storage = {
+    get() {
+        return JSON.parse(localStorage.getItem('transactions')) || []
+    },
+    set(transactions){
+        localStorage.setItem('transactions', JSON.stringify(transactions))
+    }
+}
+
+const Transactions = {
+    all: Storage.get(),
+
+    add(transaction) {
+        Transactions.all.push(transaction)
+        App.reload()
+    },
+
+    remove(index) {
+        Transactions.all.splice(index, 1)
+        App.reload()
+    },
+
+    incomes() {
+        return Transactions.all.reduce((acc, next) => {
+            return next.amount > 0 ? acc + next.amount : acc
+        }, 0)
+    },
+
+    expenses() {
+        return Transactions.all.reduce((acc, next) => {
+            return next.amount < 0 ? acc + next.amount : acc
+        }, 0)
+    },
+
+    total() {
+        return Transactions.incomes() + Transactions.expenses()
+    }
+}
+
+const DOM = {
+    transactionsContainer: document.querySelector('#data-table tbody'),
+
+    addTransaction(transaction, index) {
+        const tr = document.createElement('tr')
+        tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
+        tr.dataset.index = index
+
+        DOM.transactionsContainer.appendChild(tr)
+    },
+
+    innerHTMLTransaction(transaction, index) {
+        const CSSclass = transaction.amount < 0 ? 'expense' : 'income'
+
+        const amount = Utils.formatCurrency(transaction.amount)
+
+        const html = `
+            <td class="description">${transaction.description}</td>
+            <td class="${CSSclass}">${amount}</td>
+            <td class="data">${transaction.date}</td>
             <td>
                 <img 
                     class="remove" 
                     src="./assets/minus.svg" 
                     alt="Remover Transação"
-                    onclick="deleteTransaction(this)"
-                    data-id="${id}" 
+                    onclick="Transactions.remove(${index})"
+                    
                 />
             </td>
-        </tr>`;
-
-        this.refTable.innerHTML += template
-    },
-    load(transactions) {
-        this.clear()
-        transactions.forEach(transaction => this.insertTransaction(transaction))
-    },
-    clear() {
-        this.refTable.innerHTML = ''
-    },
-}
-
-const getEntryMoney = (acc, next) => next > 0 ? (acc + next) : acc
-const getOutMoney = (acc, next) => next < 0 ? (acc + next) : acc
-const getBalance = (acc, next) => acc + next
-
-const generalBalance = (transactions, fnCalculate) =>
-    transactions.reduce(fnCalculate, 0)
-
-const Balance = {
-    refEntry: document.querySelector('#entry'),
-    refOut: document.querySelector('#out'),
-    refBalance: document.querySelector('#balance'),
-
-    updateHelper(transactions, fnCalculate, refElementHTML) {
-        const value = generalBalance(transactions, fnCalculate)
-        refElementHTML.innerHTML = ApresentationFormat.money(value)
+        `
+        return html
     },
 
-    update(transactionsAmount) {
-        this.updateHelper(transactionsAmount, getEntryMoney, this.refEntry)
-        this.updateHelper(transactionsAmount, getOutMoney, this.refOut)
-        this.updateHelper(transactionsAmount, getBalance, this.refBalance)
+    updateBalance() {
+        document
+            .getElementById('incomeDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.incomes())
+        document
+            .getElementById('expenseDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.expenses())
+        document
+            .getElementById('totalDisplay')
+            .innerHTML = Utils.formatCurrency(Transactions.total())
+    },
+
+    clearTransactions() {
+        DOM.transactionsContainer.innerHTML = ''
     }
 }
 
-const LocalStorage = {
-    get(key) {
-        const valueLocal = localStorage.getItem(key)
-        if (!valueLocal)
-            return
+const Utils = {
+    formatCurrency(value) {
+        const signal = Number(value) < 0 ? '-' : ''
 
-        return JSON.parse(valueLocal)
+        value = String(value).replace(/\D/g, '')
+
+        value = Number(value) / 100
+
+        value = value.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        })
+
+        return signal + value
     },
-    set(key, value) {
-        localStorage.setItem(key, JSON.stringify(value))
+    formatAmount(value) {
+        return Number(value) * 100
+    },
+    formatDate(value) {
+        value = String(value)
+        return new Date(value)
+                        .toLocaleDateString('pt-br', { timeZone: 'UTC' })
     }
 }
 
-const Transaction = {
-    get transactions() {
-        const allTransactions = LocalStorage.get('transactions')
-        return allTransactions ? allTransactions : []
+const Form = {
+    description: document.querySelector('input#description'),
+    amount: document.querySelector('input#amount'),
+    date: document.querySelector('input#date'),
+
+    getValues() {
+        return {
+            description: Form.description.value,
+            amount: Form.amount.value,
+            date: Form.date.value
+        }
     },
-    set transactions(value) {
-        LocalStorage.set('transactions', value)
+
+    formatValues() {
+        let { description, amount, date } = Form.getValues()
+
+        amount = Utils.formatAmount(amount)
+
+        date = Utils.formatDate(date)
+        
+        return { description, amount, date }
     },
-    save(description, amount, date) {
-        const newTransaction = {
-            id: uuidv4(),
-            description,
-            amount,
-            date
+
+    validateFields() {
+        const { description, amount, date } = Form.getValues()
+
+        if ( description.trim() === '' ||
+            amount.trim() === '' ||
+            date.trim() === '' ) {
+                throw new Error("Por favor, preencha todos os campos")
+            }
+    },
+
+    saveTransaction(transaction) {
+        Transactions.add(transaction)
+    },
+
+    clearFields(){
+        Form.description.value = ''
+        Form.amount.value = ''
+        Form.date.value = ''
+    },
+
+    submit(event) {
+        event.preventDefault()
+
+        try {
+            Form.validateFields()
+            const transaction = Form.formatValues()
+            Transactions.add(transaction)
+            Form.clearFields()
+            Modal.toggle()
+        } catch (error) {
+            alert(error.message)
         }
 
-        this.transactions = [...this.transactions, newTransaction]
-        return newTransaction
-    },
-    delete(id) {
-        this.transactions = this.transactions.filter((transaction) => transaction.id !== id)
-    },
-    getAll() {
-        return this.transactions
-    },
-    getAllAmount() {
-        return this.transactions.map(transaction => transaction.amount)
     }
 }
 
-const submitTransaction = (event) => {
-    event.preventDefault()
+const App = {
+    init() {
+        Transactions.all.forEach(DOM.addTransaction)
 
-    const form = event.target
-    const isInvalidFormData = form.checkValidity() === false
+        DOM.updateBalance()
 
-    if (isInvalidFormData)
-        return
-
-    function clearForm() {
-        form.description.value = ''
-        form.amount.value = ''
-        form.date.value = ''
-    }
-
-    const description = form.description.value
-    const amount = Number(form.amount.value)
-    const date = form.date.value
-
-    const transaction = Transaction.save(description, amount, date)
-
-    DataTable.insertTransaction(transaction)
-    Balance.update(Transaction.getAllAmount())
-    Modal.close()
-    clearForm()
-}
-
-const deleteTransaction = target => {
-    Transaction.delete(target.dataset['id'])
-    updateDates()
-}
-
-const Loading = {
-    refLoading: document.querySelector('.loading-container'),
-    show() {
-        this.refLoading.classList.remove('hidden')
-        this.refLoading.classList.remove('fade-out')
+        Storage.set(Transactions.all)
     },
-    _fadeOut() {
-        this.refLoading.classList.add('fade-out')
-    },
-    hidden() {
-        this._fadeOut()
-        this.refLoading.addEventListener('animationend', () => {
-            this.refLoading.classList.add('hidden')
-        })
+
+    reload() {
+        DOM.clearTransactions()
+        App.init()
     }
 }
 
-const ThemeMode = {
-    refToggleTheme: document.querySelector('.toggle-theme'),
-    get currentTheme() {
-        const theme = LocalStorage.get('currentTheme')
-
-        return theme ? theme : 'light'
-    },
-    set currentTheme(newTheme) {
-        LocalStorage.set('currentTheme', newTheme)
-    },
-    load() {
-        this.refToggleTheme.addEventListener('click', () => ThemeMode.toggle())
-        this._switchTheme()
-    },
-    toggle() {
-        const newTheme = {
-            'light': 'dark',
-            'dark': 'light'
-        }[this.currentTheme]
-
-        this.currentTheme = newTheme
-        this._switchTheme()
-    },
-
-    _switchTheme() {
-        document.documentElement.setAttribute("data-theme", this.currentTheme);
-    }
-}
-
-const updateDates = () => {
-    DataTable.load(Transaction.getAll())
-    Balance.update(Transaction.getAllAmount())
-}
-
-const initSteps = () => {
-    document.querySelector('form').addEventListener('submit', submitTransaction)
-
-    ThemeMode.load()
-    updateDates()
+window.addEventListener('load', () => {
+    Theme.load()
+    App.init()
     Loading.hidden()
-}
-window.onload = initSteps
+})

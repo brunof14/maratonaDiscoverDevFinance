@@ -24,7 +24,7 @@
     <header>
       <div>
         <img src="./assets/logo.svg" alt="Logo Dev Finance" />
-        <a class="toggle-theme" href="#">
+        <a class="toggle-theme" href="#" onclick="Theme.toggle()">
           <img id="dark-mode" src="./assets/dark.svg" alt="Dark Mode">
           <img id="light-mode" src="./assets/ligth.svg" alt="Light Mode">
         </a>
@@ -40,7 +40,7 @@
             <span>Entradas</span>
             <img src="./assets/income.svg" alt="Imagen de Entradas" />
           </h3>
-          <p id="entry">R$ 0,00</p>
+          <p id="incomeDisplay">R$ 0,00</p>
         </div>
 
         <div class="card">
@@ -48,22 +48,22 @@
             <span>Saídas</span>
             <img src="./assets/expense.svg" alt="Imagen de Saídas" />
           </h3>
-          <p id="out">R$ 0,00</p>
+          <p id="expenseDisplay">R$ 0,00</p>
         </div>
 
-        <div class="card saldo">
+        <div class="card total">
           <h3>
             <span>Saldo</span>
-            <img src="./assets/saldo.svg" alt="Imagen de saldo" />
+            <img src="./assets/total.svg" alt="Imagen de total" />
           </h3>
-          <p id="balance">R$ 0,00</p>
+          <p id="totalDisplay">R$ 0,00</p>
         </div>
       </section>
 
       <section id="transactions">
         <h2 class="sr-only">Transações</h2>
 
-        <a href="#" onclick="Modal.open()" class="button new"
+        <a href="#" onclick="Modal.toggle()" class="button new"
           >+ Nova Transação</a
         >
 
@@ -87,7 +87,7 @@
       <div class="modal">
         <div id="form">
           <h2>Nova Transação</h2>
-          <form action="">
+          <form action="" onsubmit="Form.submit(event)">
             <div class="input-group">
               <label class="sr-only" for="description">Descrição</label>
               <input
@@ -121,7 +121,7 @@
             </div>
 
             <div class="input-group actions">
-              <a href="#" onclick="Modal.close()" class="button cancel"
+              <a href="#" onclick="Modal.toggle()" class="button cancel"
                 >Cancelar</a
               >
               <button>Salvar</button>
