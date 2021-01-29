@@ -146,8 +146,8 @@ const Utils = {
         return signal + value
     },
     formatAmount(value) {
-        value = Number(value.replace(/\,\./g, "")) * 100
-        return Number(value.toFixed(0))
+        value = value * 100
+        return Math.round(value)
     },
     formatDate(value) {
         value = String(value)
