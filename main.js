@@ -114,6 +114,10 @@ const DOM = {
     },
 
     updateBalance() {
+        const total = Transactions.total()
+        const cardTotal = document.querySelector('.card.total')
+        const CSSclass = total < 0 ? 'negative' : 'positive'
+
         document
             .getElementById('incomeDisplay')
             .innerHTML = Utils.formatCurrency(Transactions.incomes())
@@ -122,7 +126,10 @@ const DOM = {
             .innerHTML = Utils.formatCurrency(Transactions.expenses())
         document
             .getElementById('totalDisplay')
-            .innerHTML = Utils.formatCurrency(Transactions.total())
+            .innerHTML = Utils.formatCurrency(total)
+
+        cardTotal.classList.remove('positive', 'negative')
+        cardTotal.classList.add(CSSclass)
     },
 
     clearTransactions() {
