@@ -115,7 +115,7 @@ button:hover {
 
 header {
   background-color: var(--background-header);
-  padding: 2rem 0 10rem;
+  padding: 2rem 0 8.7rem;
   text-align: center;
 }
 
@@ -128,7 +128,7 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 2rem auto;
+  margin: 2rem auto 0;
 }
 
 [data-theme="dark"] .toggle-theme #dark-mode {
@@ -152,7 +152,7 @@ h2 {
 }
 
 #general-balance {
-  margin-top: -8rem;
+  margin-top: -5rem;
 }
 
 #general-balance h2 {
@@ -191,8 +191,6 @@ h2 {
 }
 
 .table-scrollable {
-  display: block;
-  width: 100%;
   overflow: auto;
 }
 
@@ -391,13 +389,20 @@ footer {
 
 @media (min-width: 1024px) {
   header div {
-    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas: ". center right";
+    justify-items: center;
+    align-items: center;
+  }
+
+  header div img {
+    grid-area: center;
   }
 
   .toggle-theme {
-    position: absolute;
-    right: 1.6rem;
-    top: -0.5rem;
+    justify-self: flex-end;
+    grid-area: right;
     margin: 0;
   }
 }
